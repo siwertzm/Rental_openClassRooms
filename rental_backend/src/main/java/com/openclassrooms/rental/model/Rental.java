@@ -5,25 +5,25 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Data
 @NoArgsConstructor
-@Table(name = "users")
-public class User {
+@Data
+public class Rental {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
+    private Integer surface;
+    private Integer price;
+    private String description;
+    private String picture;
 
-    @Column(unique = true)
-    private String email;
-
-    private String password;
+    @Column(name = "owner_id")
+    private Long ownerId;
     
 }
