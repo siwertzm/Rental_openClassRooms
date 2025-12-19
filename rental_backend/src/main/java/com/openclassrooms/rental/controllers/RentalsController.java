@@ -4,15 +4,15 @@ import java.util.List;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.openclassrooms.rental.dto.RentalsCreateDTO;
 import com.openclassrooms.rental.dto.RentalsDTO;
+import com.openclassrooms.rental.dto.RentalsResponseDTO;
 import com.openclassrooms.rental.model.User;
 import com.openclassrooms.rental.repository.UserRepository;
 import com.openclassrooms.rental.services.RentalsService;
 
+import org.springframework.http.MediaType;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -24,8 +24,8 @@ public class RentalsController {
     private final UserRepository userRepository;
 
     @GetMapping
-    public List<RentalsDTO> getAll() {
-        return rentalService.findAll();
+    public RentalsResponseDTO getAll() {
+        return new RentalsResponseDTO(rentalService.findAll());
     }
 
     @GetMapping("/{id}")
@@ -33,8 +33,8 @@ public class RentalsController {
         return rentalService.findById(id);
     }
 
-    @PostMapping
-    public RentalsDTO create(@RequestBody RentalsCreateDTO dto) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public RentalsDTO create(@ModelAttribute RentalsCreateDTO dto) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("user not found"));
 

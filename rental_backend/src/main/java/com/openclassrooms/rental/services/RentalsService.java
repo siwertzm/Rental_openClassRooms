@@ -1,6 +1,11 @@
 package com.openclassrooms.rental.services;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -9,6 +14,8 @@ import com.openclassrooms.rental.dto.RentalsDTO;
 import com.openclassrooms.rental.model.Rentals;
 import com.openclassrooms.rental.repository.RentalRepository;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,13 +34,49 @@ public class RentalsService {
     }
 
     public RentalsDTO create(RentalsCreateDTO dto, Long ownerId) {
+        String picturePath = null;
+
+    if (dto.getPicture() != null && !dto.getPicture().isEmpty()) {
+
+        // Sécurité 
+        if (!dto.getPicture().getContentType().startsWith("image/")) {
+            throw new IllegalArgumentException("Only image files are allowed");
+        }
+
+        try {
+            // Nom de fichier safe
+            String extension = Optional.ofNullable(dto.getPicture().getOriginalFilename())
+                    .filter(f -> f.contains("."))
+                    .map(f -> f.substring(f.lastIndexOf(".")))
+                    .orElse(".jpg");
+
+            String filename = UUID.randomUUID() + extension;
+
+            Path uploadDir = Paths.get("uploads");
+            Files.createDirectories(uploadDir);
+
+            Path target = uploadDir.resolve(filename);
+
+            //Écrasement interdit
+            Files.copy(
+                dto.getPicture().getInputStream(),
+                target,
+                StandardCopyOption.REPLACE_EXISTING
+            );
+
+            picturePath = "http://localhost:8080/uploads/" + filename;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Image upload failed", e);
+        }
+    }
         Rentals rental = new Rentals(
             null,
             dto.getName(),
             dto.getSurface(),
             dto.getPrice(),
             dto.getDescription(),
-            dto.getPicture(),
+            picturePath,
             ownerId
         );
         rentalRepository.save(rental);
@@ -55,9 +98,6 @@ public class RentalsService {
         }
         if (dto.getDescription() != null) {
             rental.setDescription(dto.getDescription());
-        }
-        if (dto.getPicture() != null) {
-            rental.setPicture(dto.getPicture());
         }
 
         return toDTO(rentalRepository.save(rental));

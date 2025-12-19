@@ -1,5 +1,7 @@
 package com.openclassrooms.rental.dto;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,5 +14,5 @@ public class RentalsCreateDTO {
     private Integer surface;
     private Integer price;
     private String description;
-    private String picture;
+    private MultipartFile picture;
 }

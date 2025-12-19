@@ -34,6 +34,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+            .requestMatchers("/uploads/**").permitAll()
             // Routes Swagger OPEN
             .requestMatchers(
                 "/swagger-ui.html",
